@@ -8,6 +8,10 @@ Advantages
 No dependency of the original interception.dll\
 Ability to publish your application in single file
 
+Samples
+-------
+You can find samples on the [original github](https://github.com/oblitum/Interception/tree/master/samples)
+
 Build
 ----------------
 No dependencies\
