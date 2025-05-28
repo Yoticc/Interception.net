@@ -15,4 +15,4 @@ Framework: .net9-windows
 
 Requirements for use
 ----------------
-Installed driver https://github.com/oblitum/Interception/releases/tag/v1.0.1
+Installed [interception driver](https://github.com/oblitum/Interception/releases/tag/v1.0.1)
