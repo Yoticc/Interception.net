@@ -30,8 +30,7 @@ public unsafe static class InterceptionInterop
     const int IOCTL_WRITE           = FILE_DEVICE_UNKNOWN << 16 | FILE_ANY_ACCESS << 14 | 0x820 << 2 | METHOD_BUFFERED;
     const int IOCTL_READ            = FILE_DEVICE_UNKNOWN << 16 | FILE_ANY_ACCESS << 14 | 0x840 << 2 | METHOD_BUFFERED;
     const int IOCTL_GET_HARDWARE_ID = FILE_DEVICE_UNKNOWN << 16 | FILE_ANY_ACCESS << 14 | 0x880 << 2 | METHOD_BUFFERED;
-
-
+    
     public struct KeyboardInputData
     {
         public ushort UnitID;
@@ -344,7 +343,7 @@ public unsafe static class InterceptionInterop
         if(context == default || nstroke == 0 || interception_is_invalid(device) || devices[device - 1].FileHandle == default)
             return 0;
 
-        if(interception_is_keyboard(device))
+        if (interception_is_keyboard(device))
         {
             var rawStrokes = (KeyboardInputData*)HeapAlloc(GetProcessHeap(), 0, nstroke * sizeof(KeyboardInputData));
             if(rawStrokes == default) 
@@ -352,13 +351,13 @@ public unsafe static class InterceptionInterop
 
             var keyStroke = (KeyStroke*)stroke;
             var rawStroke = rawStrokes;
-            for(var i = 0; i < nstroke; i++, rawStroke++)
+            for(var i = 0; i < nstroke; i++, rawStroke++, keyStroke++)
             {
                 rawStroke->UnitID = 0;
-                rawStroke->MakeCode = keyStroke[i].Code;
-                rawStroke->Flags = (ushort)keyStroke[i].State;
+                rawStroke->MakeCode = keyStroke->Code;
+                rawStroke->Flags = (ushort)keyStroke->State;
                 rawStroke->Reserved = 0;
-                rawStroke->ExtraInformation = keyStroke[i].Information;
+                rawStroke->ExtraInformation = keyStroke->Information;
             }
 
             DeviceIoControl(devices[device - 1].FileHandle, IOCTL_WRITE, rawStrokes, nstroke * sizeof(KeyboardInputData), null, 0, &strokesWritten, null);
@@ -375,20 +374,19 @@ public unsafe static class InterceptionInterop
 
             var mouseStroke = (MouseStroke*)stroke;
             var rawStroke = rawStrokes;
-            for(var i = 0; i < nstroke; i++, rawStroke++)
+            for(var i = 0; i < nstroke; i++, rawStroke++, mouseStroke++)
             {
                 rawStroke->UnitId = 0;
-                rawStroke->Flags = (ushort)mouseStroke[i].Flags;
-                rawStroke->ButtonFlags = (ushort)mouseStroke[i].State;
-                rawStroke->ButtonData = (ushort)mouseStroke[i].Rolling;
+                rawStroke->Flags = (ushort)mouseStroke->Flags;
+                rawStroke->ButtonFlags = (ushort)mouseStroke->State;
+                rawStroke->ButtonData = (ushort)mouseStroke->Rolling;
                 rawStroke->RawButtons = 0;
-                rawStroke->LastX = mouseStroke[i].X;
-                rawStroke->LastY = mouseStroke[i].Y;
-                rawStroke->ExtraInformation = mouseStroke[i].Information;
+                rawStroke->LastX = mouseStroke->X;
+                rawStroke->LastY = mouseStroke->Y;
+                rawStroke->ExtraInformation = mouseStroke->Information;
             }
 
             DeviceIoControl(devices[device - 1].FileHandle, IOCTL_WRITE, rawStrokes, nstroke * sizeof(MouseInputData), null, 0, &strokesWritten, null);
-
             HeapFree(GetProcessHeap(), 0,  rawStrokes);
 
             strokesWritten /= sizeof(MouseInputData);
